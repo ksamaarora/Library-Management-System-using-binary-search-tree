@@ -62,41 +62,6 @@ snode* updateQuantity(snode* root, string bookname, int newQuantity){
     return root;
 }
 
-snode* searchInBST(snode* root, string name_tobe_searched, string &task){
-    if(root==NULL){ 
-        if(task=="returnbook"){
-            cout<<"Book not found in the library, adding it now"<<endl;
-            root=insertBST(root, name_tobe_searched, 1);
-            cout<<"Thank you for returning the book "<<name_tobe_searched<<endl;
-            cout << "Note: The return period for the book is 1.5 months" << endl;
-        }
-        else{
-            cout<<"Book not found"<<endl;
-        }
-    }
-    else if(root->bookname==name_tobe_searched){
-        cout<<"Book found - Name: "<<root->bookname <<" ,Quantity: "<<root->quantity<<endl;
-        if(task=="issue"){
-            int newQuantity=root->quantity-1;
-            root=updateQuantity(root, name_tobe_searched, newQuantity); 
-            cout<<"Thank you for issuing the book "<< name_tobe_searched<<endl;
-            cout<<"Note: The return period for the book is 1.5 months"<<endl;
-        }
-        else if(task=="returnbook"){
-            int newQuantity=root->quantity+1;
-            root=updateQuantity(root, name_tobe_searched, newQuantity); 
-            cout<<"Thank you for returning the book"<<endl;
-        }
-    }
-    else if(root->bookname>name_tobe_searched){
-        root->left=searchInBST(root->left, name_tobe_searched, task);
-    }
-    else if(root->bookname<name_tobe_searched){
-        root->right=searchInBST(root->right,name_tobe_searched, task);
-    }
-    return root;
-}
-
 snode* inordersucc(node* root){
     snode* curr=root;
     while(curr && curr->left!=NULL){
@@ -136,9 +101,59 @@ snode* deleteInBST(snode* root, string name_tobe_deleted){
 
         // Delete the in-order successor
         root->right=deleteInBST(root->right, temp->bookname);
+
+        if(root->quantity==0){
+            delete(root);
+            root=NULL;
+        }
     }
     return root;
 }
+
+snode* searchInBST(snode* root, string name_tobe_searched, string &task){
+    if(root==NULL){ 
+        if(task=="returnbook"){
+            cout<<"Book not found in the library, adding it now"<<endl;
+            root=insertBST(root, name_tobe_searched, 1);
+            cout<<"Thank you for returning the book "<<name_tobe_searched<<endl;
+            cout << "Note: The return period for the book is 1.5 months" << endl;
+        }
+        else{
+            cout<<"Book not found"<<endl;
+        }
+    }
+    else if(root->bookname==name_tobe_searched){
+        cout<<"Book found - Name: "<<root->bookname <<" ,Quantity: "<<root->quantity<<endl;
+        if(task=="issue"){
+            if(root->quantity>0){
+                int newQuantity=root->quantity-1;
+                root=updateQuantity(root, name_tobe_searched, newQuantity);
+                cout<<"Thank you for issuing the book "<< name_tobe_searched<<endl;
+                cout<<"Note: The return period for the book is 1.5 months"<<endl;
+            }
+            else{
+                cout<<"Sorry, this book is out of stock"<<endl;
+            }   
+        }
+        else if(task=="returnbook"){
+            int newQuantity=root->quantity+1;
+            if(newQuantity==1){
+                root=insertBST(root, name_tobe_searched, 1);
+            }
+            root=updateQuantity(root, name_tobe_searched, newQuantity); 
+            cout<<"Thank you for returning the book"<<endl;
+        }
+    }
+
+    else if(root->bookname>name_tobe_searched){
+        root->left=searchInBST(root->left, name_tobe_searched, task);
+    }
+    else if(root->bookname<name_tobe_searched){
+        root->right=searchInBST(root->right,name_tobe_searched, task);
+    }
+    return root;
+}
+
 
 int main() {
     snode* root = NULL;
